@@ -7,7 +7,12 @@ const config: Config = {
     "./modules/**/*.{js,ts,jsx,tsx,mdx}"
   ],
   theme: {
-    extend: {}
+    extend: {
+      fontFamily: {
+        sohne: ["var(--font-sohne)"],
+        "gt-super": ["var(--font-gt-super)"]
+      }
+    }
   },
   plugins: []
 };
