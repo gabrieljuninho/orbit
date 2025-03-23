@@ -6,6 +6,8 @@ import "@/styles/globals.css";
 import { cn } from "@/lib/utils";
 import { geistSans } from "@/lib/fonts";
 
+import QueryProvider from "@/components/providers/query-provider";
+
 import { PropsWithChildren } from "@/types/components";
 
 export const metadata: Metadata = {
@@ -17,7 +19,7 @@ const RootLayout: FC<PropsWithChildren> = ({ children }) => {
   return (
     <html lang="en">
       <body className={cn("font-geist-sans", geistSans.variable)}>
-        {children}
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );
