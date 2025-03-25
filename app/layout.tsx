@@ -6,6 +6,8 @@ import "@/styles/globals.css";
 import { cn } from "@/lib/utils";
 import { geistSans } from "@/lib/fonts";
 
+import { Toaster } from "@/components/ui/sonner";
+
 import QueryProvider from "@/components/providers/query-provider";
 
 import { PropsWithChildren } from "@/types/components";
@@ -19,7 +21,10 @@ const RootLayout: FC<PropsWithChildren> = ({ children }) => {
   return (
     <html lang="en">
       <body className={cn("font-geist-sans", geistSans.variable)}>
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          {children}
+          <Toaster />
+        </QueryProvider>
       </body>
     </html>
   );

@@ -1,13 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { AlertCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { SignUpSchema } from "@/schemas/auth";
 
+import { createUser } from "@/features/auth/services/auth";
+
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -19,11 +25,21 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-import Wrapper from "@/features/auth/components/wrapper";
 import Spinner from "@/features/auth/components/spinner";
+import Wrapper from "@/features/auth/components/wrapper";
 
 const SignUpForm = () => {
-  const [isPending, setIsPending] = useState<boolean>(false);
+  const router = useRouter();
+
+  const mutation = useMutation({
+    mutationFn: createUser,
+    onSuccess: () => {
+      router.push("/auth/login");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   const form = useForm<z.infer<typeof SignUpSchema>>({
     resolver: zodResolver(SignUpSchema),
@@ -35,9 +51,7 @@ const SignUpForm = () => {
   });
 
   const onSubmit = (values: z.infer<typeof SignUpSchema>) => {
-    setIsPending(true);
-    console.log(values);
-    setIsPending(false);
+    mutation.mutate(values);
   };
 
   return (
@@ -46,6 +60,14 @@ const SignUpForm = () => {
       description="Build your team, share ideas, and make progress all in one space"
       type="sign up"
     >
+      {mutation?.data?.status === 500 ||
+        mutation?.data?.status === 400 ||
+        (mutation?.data?.status === 409 && (
+          <Alert variant={"destructive"}>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{mutation.data.message}</AlertDescription>
+          </Alert>
+        ))}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormField
@@ -61,7 +83,7 @@ const SignUpForm = () => {
                     placeholder="orbit123"
                     autoComplete="off"
                     className="text-sm"
-                    disabled={isPending}
+                    disabled={mutation.isPending}
                   />
                 </FormControl>
                 <FormMessage />
@@ -81,7 +103,7 @@ const SignUpForm = () => {
                     placeholder="orbit@example.com"
                     autoComplete="off"
                     className="text-sm"
-                    disabled={isPending}
+                    disabled={mutation.isPending}
                   />
                 </FormControl>
                 <FormMessage />
@@ -101,15 +123,19 @@ const SignUpForm = () => {
                     placeholder="********"
                     autoComplete="off"
                     className="text-sm"
-                    disabled={isPending}
+                    disabled={mutation.isPending}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full text-sm" disabled={isPending}>
-            {isPending ? <Spinner /> : "Create an account"}
+          <Button
+            type="submit"
+            className="w-full text-sm"
+            disabled={mutation.isPending}
+          >
+            {mutation.isPending ? <Spinner /> : "Create an account"}
           </Button>
         </form>
       </Form>
