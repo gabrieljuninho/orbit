@@ -1,13 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useTransition } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { LoginSchema } from "@/schemas/auth";
+
+import { login } from "@/features/auth/actions/login";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -25,7 +29,14 @@ import Spinner from "@/features/auth/components/spinner";
 import Wrapper from "@/features/auth/components/wrapper";
 
 const LoginForm = () => {
-  const [isPending, setIsPending] = useState<boolean>(false);
+  const [isPending, startTransition] = useTransition();
+
+  const urlParams = useSearchParams();
+  const callBackUrl = urlParams.get("callbackUrl");
+  const errorUrlParam =
+    urlParams.get("error") === "OAuthAccountNotLinked"
+      ? "This account is already linked to a user. Please sign in with a different account."
+      : "";
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -36,9 +47,19 @@ const LoginForm = () => {
   });
 
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
-    setIsPending(true);
-    console.log(values);
-    setIsPending(false);
+    startTransition(() => {
+      login(values, callBackUrl)
+        .then((data) => {
+          if (data?.error) {
+            form.reset();
+
+            toast.error(data.error);
+          }
+        })
+        .catch(() => {
+          toast.error("Something went wrong.");
+        });
+    });
   };
 
   return (
@@ -47,10 +68,12 @@ const LoginForm = () => {
       description="Log in to collaborate, create, and achieve more with your team"
       type="login"
     >
-      <Alert variant={"destructive"}>
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>Something went wrong</AlertDescription>
-      </Alert>
+      {errorUrlParam && (
+        <Alert variant={"destructive"}>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{errorUrlParam}</AlertDescription>
+        </Alert>
+      )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormField
