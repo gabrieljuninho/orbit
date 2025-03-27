@@ -31,6 +31,7 @@ model User {
 
   accounts Account[]
   sessions Session[]
+  members  Member[]
 }
 
 model Account {
@@ -67,4 +68,34 @@ model VerificationToken {
   expires    DateTime
 
   @@id([identifier, token])
+}
+
+model Team {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  image       String?
+  inviteCode  String   @unique @map("invite_code")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  members Member[]
+}
+
+enum Status {
+  PENDING
+  ACTIVE
+  INACTIVE
+}
+
+model Member {
+  id        String   @id @default(cuid())
+  userId    String   @unique @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId    String   @map("team_id")
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  role      UserRole @default(MEMBER)
+  status    Status   @default(PENDING)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 }
