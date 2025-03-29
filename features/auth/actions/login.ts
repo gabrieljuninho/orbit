@@ -11,6 +11,7 @@ import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 
 import { LoginSchema } from "@/schemas/auth";
 
+import { getTeamsByUserId } from "@/features/auth/helpers/team";
 import { getUserByEmail } from "@/features/auth/helpers/user";
 
 export const login = async (
@@ -45,11 +46,18 @@ export const login = async (
     }
   }
 
+  const teams = await getTeamsByUserId(existingUser.id);
+
+  const redirectTo =
+    teams && teams.length > 0
+      ? callBackUrl || DEFAULT_LOGIN_REDIRECT
+      : "/teams/create";
+
   try {
     await signIn("credentials", {
       email,
       password,
-      redirectTo: callBackUrl || DEFAULT_LOGIN_REDIRECT,
+      redirectTo,
     });
   } catch (error) {
     if (error instanceof AuthError) {

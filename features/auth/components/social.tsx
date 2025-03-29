@@ -9,14 +9,14 @@ import { FcGoogle } from "react-icons/fc";
 
 import { Button } from "@/components/ui/button";
 
-import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
-
 const Social = () => {
   const urlParams = useSearchParams();
   const callBackUrl = urlParams.get("callbackUrl");
 
   const handleClick = (provider: "github" | "google") => {
-    signIn(provider), { callbackUrl: callBackUrl || DEFAULT_LOGIN_REDIRECT };
+    signIn(provider, {
+      callbackUrl: callBackUrl as string,
+    });
   };
 
   return (
@@ -25,6 +25,7 @@ const Social = () => {
         variant={"outline"}
         className="w-full"
         onClick={() => handleClick("google")}
+        disabled
       >
         <FcGoogle />
         Google
@@ -33,6 +34,7 @@ const Social = () => {
         variant={"outline"}
         className="w-full"
         onClick={() => handleClick("github")}
+        disabled
       >
         <FaGithub />
         Github
