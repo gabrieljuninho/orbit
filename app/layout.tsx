@@ -6,6 +6,8 @@ import "./globals.css";
 
 import { cn } from "@/lib/utils";
 
+import QueryProvider from "@/components/providers/query-provider";
+
 const inter = Inter({
   display: "swap",
   subsets: ["latin"],
@@ -25,7 +27,7 @@ const RootLayout: FC<RootLayoutProps> = ({ children }) => {
   return (
     <html lang="en">
       <body className={cn("font-inter antialiased", inter.variable)}>
-        {children}
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );

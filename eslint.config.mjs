@@ -14,6 +14,7 @@ const eslintConfig = [
   ...compat.config({
     extends: ["next", "prettier"],
     ignorePatterns: ["node_modules/", ".next/", "public/"],
+    plugins: ["@tanstack/query"],
     rules: {
       indent: ["error", 2],
       quotes: ["error", "double"],
