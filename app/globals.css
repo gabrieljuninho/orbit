@@ -155,6 +155,11 @@
     @apply border-border outline-ring/50;
   }
 
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+  }
+
   body {
     @apply bg-background text-foreground;
   }
